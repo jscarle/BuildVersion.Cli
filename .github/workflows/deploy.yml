@@ -1,0 +1,40 @@
+name: Deploy
+
+on:
+  release:
+    types: [published]
+    
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+
+    - name: Set build version
+      run: echo "MINVERBUILDMETADATA=build.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        filter: tree:0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build solution
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Pack CLI package
+      run: dotnet pack src/Cli/Cli.csproj --configuration Release --no-build --no-restore --output ${{env.DOTNET_ROOT}}/pack --property:IncludeSymbols=true --property:SymbolPackageFormat=snupkg
+
+    - name: Push packages
+      run: dotnet nuget push ${{env.DOTNET_ROOT}}/pack/*.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json

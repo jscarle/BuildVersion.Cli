@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+    <!-- Compilation -->
+    <PropertyGroup>
+        <RootNamespace>BuildVersion.Cli</RootNamespace>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <!-- Analysis -->
+    <PropertyGroup>
+        <AnalysisLevel>latest-All</AnalysisLevel>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <!-- References -->
+    <ItemGroup>
+        <PackageReference Include="MinVer" Version="6.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1"/>
+    </ItemGroup>
+
+    <!-- Output -->
+    <PropertyGroup>
+        <AssemblyName>build-version</AssemblyName>
+        <NeutralLanguage>en-US</NeutralLanguage>
+        <Optimize>true</Optimize>
+    </PropertyGroup>
+
+    <!-- Package -->
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+        <PackageId>BuildVersion.Cli</PackageId>
+        <Title>Build Version CLI</Title>
+        <Description>A command line tool to emit automatic build versions in a CI/CD pipeline.</Description>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageProjectUrl>https://github.com/jscarle/BuildVersion.Cli</PackageProjectUrl>
+        <PackageTags>build version cli devops</PackageTags>
+        <RepositoryUrl>https://github.com/jscarle/BuildVersion.Cli</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <Authors>Jean-Sebastien Carle</Authors>
+        <Copyright>Copyright © Jean-Sebastien Carle 2025</Copyright>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageIcon>Icon.png</PackageIcon>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>build-version</ToolCommandName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="..\..\Icon.png" Pack="true" PackagePath="\" Visible="false"/>
+    </ItemGroup>
+
+    <!-- Versioning -->
+    <PropertyGroup>
+        <MinVerTagPrefix>v</MinVerTagPrefix>
+        <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
+    </PropertyGroup>
+
+    <Target Name="VersionTarget" AfterTargets="MinVer">
+        <PropertyGroup>
+            <GITHUB_RUN_NUMBER Condition="'$(GITHUB_RUN_NUMBER)' == ''">0</GITHUB_RUN_NUMBER>
+            <FileVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).$(GITHUB_RUN_NUMBER)</FileVersion>
+        </PropertyGroup>
+    </Target>
+
+</Project>
