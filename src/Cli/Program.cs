@@ -18,8 +18,19 @@ internal static partial class Program
         var minorOverride = CreateMinorOverrideOption(rootCommand);
         var patchOverride = CreatePatchOverrideOption(rootCommand);
         var buildOverride = CreateBuildOverrideOption(rootCommand);
-        rootCommand.SetHandler(GetBuildVersion, environment, baseOverride, majorOverride, minorOverride, patchOverride, buildOverride, output);
-        var exitCode = await rootCommand.InvokeAsync(args).ConfigureAwait(false);
+        rootCommand.SetAction(parseResult =>
+        {
+            GetBuildVersion(
+                parseResult.GetRequiredValue(environment),
+                parseResult.GetValue(baseOverride),
+                parseResult.GetValue(majorOverride),
+                parseResult.GetValue(minorOverride),
+                parseResult.GetValue(patchOverride),
+                parseResult.GetValue(buildOverride),
+                parseResult.GetRequiredValue(output));
+        });
+        var parseResult = rootCommand.Parse(args);
+        var exitCode = await parseResult.InvokeAsync(new InvocationConfiguration()).ConfigureAwait(false);
         System.Environment.Exit(exitCode);
     }
 
@@ -119,110 +130,114 @@ internal static partial class Program
 
     private static Option<Environment> CreateEnvironmentOption(Command command)
     {
-        var option = new Option<Environment>
-        ("--environment",
-            description: "Environment to generate the build version for.",
-            parseArgument: arg => Enum.Parse<Environment>(arg.Tokens.Single().Value, true)) { IsRequired = true };
-        command.AddOption(option);
+        var option = new Option<Environment>("--environment")
+        {
+            Description = "Environment to generate the build version for.",
+            CustomParser = arg => Enum.Parse<Environment>(arg.Tokens.Single().Value, true),
+            Required = true
+        };
+        command.Add(option);
         return option;
     }
 
     private static Option<string?> CreateBaseOverrideOption(Command command)
     {
-        var option = new Option<string?>
-        ("--base",
-            description: "Override the automatically generated version using the base version",
-            parseArgument: arg => arg.Tokens.Single().Value);
-        option.AddValidator(result =>
+        var option = new Option<string?>("--base")
+        {
+            Description = "Override the automatically generated version using the base version",
+            CustomParser = arg => arg.Tokens.Single().Value
+        };
+        option.Validators.Add(result =>
         {
             var value = result.GetValueOrDefault<string?>();
             if (string.IsNullOrWhiteSpace(value))
                 return;
 
             if (!VersionRegex().IsMatch(value))
-                result.ErrorMessage = "Not a valid version string.";
+                result.AddError("Not a valid version string.");
         });
-        command.AddOption(option);
+        command.Add(option);
         return option;
     }
 
     private static Option<int?> CreateMajorOverrideOption(Command command)
     {
-        var option = new Option<int?>(
-            name: "--major",
-            description: "Override the automatically generated major version"
-        );
-        option.AddValidator(result =>
+        var option = new Option<int?>("--major")
+        {
+            Description = "Override the automatically generated major version"
+        };
+        option.Validators.Add(result =>
         {
             var value = result.GetValueOrDefault<int?>();
             if (value is < 0)
-                result.ErrorMessage = "Major version cannot be negative.";
+                result.AddError("Major version cannot be negative.");
         });
-        command.AddOption(option);
+        command.Add(option);
         return option;
     }
 
     private static Option<int?> CreateMinorOverrideOption(Command command)
     {
-        var option = new Option<int?>(
-            name: "--minor",
-            description: "Override the automatically generated minor version"
-        );
-        option.AddValidator(result =>
+        var option = new Option<int?>("--minor")
+        {
+            Description = "Override the automatically generated minor version"
+        };
+        option.Validators.Add(result =>
         {
             var value = result.GetValueOrDefault<int?>();
             if (value is < 0)
-                result.ErrorMessage = "Minor version cannot be negative.";
+                result.AddError("Minor version cannot be negative.");
         });
-        command.AddOption(option);
+        command.Add(option);
         return option;
     }
 
     private static Option<string?> CreatePatchOverrideOption(Command command)
     {
-        var option = new Option<string?>(
-            name: "--patch",
-            description: "Override the patch version or use 'auto' to set it to the current week of the year"
-        );
-        option.AddValidator(result =>
+        var option = new Option<string?>("--patch")
+        {
+            Description = "Override the patch version or use 'auto' to set it to the current week of the year"
+        };
+        option.Validators.Add(result =>
         {
             var value = result.GetValueOrDefault<string?>();
             if (string.IsNullOrWhiteSpace(value) || value.Equals("auto", StringComparison.OrdinalIgnoreCase))
                 return;
 
             if (!int.TryParse(value, out var intValue))
-                result.ErrorMessage = "Patch must be a number or 'auto'.";
+                result.AddError("Patch must be a number or 'auto'.");
             else if (intValue < 0)
-                result.ErrorMessage = "Patch version cannot be negative.";
+                result.AddError("Patch version cannot be negative.");
         });
-        command.AddOption(option);
+        command.Add(option);
         return option;
     }
 
     private static Option<int?> CreateBuildOverrideOption(Command command)
     {
-        var option = new Option<int?>(
-            name: "--build",
-            description: "Override the automatically generated build version"
-        );
-        option.AddValidator(result =>
+        var option = new Option<int?>("--build")
+        {
+            Description = "Override the automatically generated build version"
+        };
+        option.Validators.Add(result =>
         {
             var value = result.GetValueOrDefault<int?>();
             if (value is < 0)
-                result.ErrorMessage = "Build version cannot be negative.";
+                result.AddError("Build version cannot be negative.");
         });
-        command.AddOption(option);
+        command.Add(option);
         return option;
     }
 
     private static Option<Output> CreateOutputOption(Command command)
     {
-        var outputOption = new Option<Output>
-        ("--output",
-            description: "The output format of the build version.",
-            isDefault: true,
-            parseArgument: arg => arg.Tokens.Count == 0 ? Output.Plain : Enum.Parse<Output>(arg.Tokens.Single().Value, true));
-        command.AddGlobalOption(outputOption);
+        var outputOption = new Option<Output>("--output")
+        {
+            Description = "The output format of the build version.",
+            CustomParser = arg => arg.Tokens.Count == 0 ? Output.Plain : Enum.Parse<Output>(arg.Tokens.Single().Value, true),
+            DefaultValueFactory = _ => Output.Plain
+        };
+        command.Add(outputOption);
         return outputOption;
     }
     
