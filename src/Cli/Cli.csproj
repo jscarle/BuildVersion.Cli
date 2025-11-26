@@ -10,6 +10,10 @@
         <LangVersion>latest</LangVersion>
         <OutputType>Exe</OutputType>
     </PropertyGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="BuildVersion.Cli.Tests" />
+    </ItemGroup>
 
     <!-- Analysis -->
     <PropertyGroup>
