@@ -1,15 +1,13 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
-using BuildVersion.Cli;
 using Shouldly;
-using Xunit;
 
 namespace BuildVersion.Cli.Tests;
 
 public class ProgramTests
 {
     [Fact]
-    public void Calculates_start_of_week_using_iso_week_rules()
+    public void CalculatesStartOfWeekUsingIsoWeekRules()
     {
         var midWeekDate = new DateTime(2025, 2, 5, 12, 0, 0, DateTimeKind.Unspecified);
 
@@ -19,7 +17,7 @@ public class ProgramTests
     }
 
     [Fact]
-    public void Calculates_minutes_since_start_of_week_for_build_version()
+    public void CalculatesMinutesSinceStartOfWeekForBuildVersion()
     {
         var sampleDate = new DateTime(2025, 2, 3, 2, 15, 0, DateTimeKind.Unspecified);
 
@@ -29,7 +27,7 @@ public class ProgramTests
     }
 
     [Fact]
-    public void Version_regex_matches_optional_minor_and_patch_segments()
+    public void VersionRegexMatchesOptionalMinorAndPatchSegments()
     {
         var regex = InvokeVersionRegex();
 
@@ -54,10 +52,10 @@ public class ProgramTests
             "GetStartOfWeek",
             BindingFlags.Static | BindingFlags.NonPublic,
             binder: null,
-            types: new[] { typeof(DateTime) },
+            types: [typeof(DateTime)],
             modifiers: null) ?? throw new MissingMethodException("Program", "GetStartOfWeek");
 
-        return (DateTime)methodInfo.Invoke(null, new object[] { date })!;
+        return (DateTime)methodInfo.Invoke(null, [date])!;
     }
 
     private static int InvokeGetBuildVersion(DateTime date)
@@ -66,10 +64,10 @@ public class ProgramTests
             "GetBuildVersion",
             BindingFlags.Static | BindingFlags.NonPublic,
             binder: null,
-            types: new[] { typeof(DateTime) },
+            types: [typeof(DateTime)],
             modifiers: null) ?? throw new MissingMethodException("Program", "GetBuildVersion(DateTime)");
 
-        return (int)methodInfo.Invoke(null, new object[] { date })!;
+        return (int)methodInfo.Invoke(null, [date])!;
     }
 
     private static Regex InvokeVersionRegex()
@@ -78,7 +76,7 @@ public class ProgramTests
             "VersionRegex",
             BindingFlags.Static | BindingFlags.NonPublic,
             binder: null,
-            types: Array.Empty<Type>(),
+            types: [],
             modifiers: null) ?? throw new MissingMethodException("Program", "VersionRegex");
 
         return (Regex)(methodInfo.Invoke(null, null) ?? throw new InvalidOperationException("VersionRegex returned null."));
