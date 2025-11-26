@@ -16,6 +16,29 @@ public class ProgramTests
         startOfWeek.ShouldBe(new DateTime(2025, 2, 3));
     }
 
+    [Theory]
+    [InlineData(2024, 12, 31, 0, 0, 0, 2024, 12, 30)] // ISO week 1 of 2025 starts on 2024-12-30
+    [InlineData(2023, 1, 1, 10, 30, 0, 2022, 12, 26)]
+    [InlineData(2025, 5, 13, 8, 0, 0, 2025, 5, 12)]
+    public void CalculatesStartOfWeekForBoundaryDates(
+        int year,
+        int month,
+        int day,
+        int hour,
+        int minute,
+        int second,
+        int expectedYear,
+        int expectedMonth,
+        int expectedDay)
+    {
+        var date = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Unspecified);
+
+        var startOfWeek = InvokeGetStartOfWeek(date);
+
+        startOfWeek.ShouldBe(new DateTime(expectedYear, expectedMonth, expectedDay));
+        startOfWeek.DayOfWeek.ShouldBe(DayOfWeek.Monday);
+    }
+
     [Fact]
     public void CalculatesMinutesSinceStartOfWeekForBuildVersion()
     {
@@ -24,6 +47,26 @@ public class ProgramTests
         var buildVersion = InvokeGetBuildVersion(sampleDate);
 
         buildVersion.ShouldBe(135);
+    }
+
+    [Theory]
+    [InlineData(2025, 2, 3, 0, 0, 0, 0)]
+    [InlineData(2025, 2, 3, 12, 0, 0, 720)]
+    [InlineData(2025, 2, 7, 23, 59, 0, 7199)]
+    public void CalculatesMinutesSinceStartOfWeekForMultipleDates(
+        int year,
+        int month,
+        int day,
+        int hour,
+        int minute,
+        int second,
+        int expectedMinutes)
+    {
+        var date = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Unspecified);
+
+        var buildVersion = InvokeGetBuildVersion(date);
+
+        buildVersion.ShouldBe(expectedMinutes);
     }
 
     [Fact]
@@ -44,6 +87,32 @@ public class ProgramTests
         twoPartMatch.Groups[3].Value.ShouldBe(string.Empty);
 
         regex.IsMatch("alpha").ShouldBeFalse();
+    }
+
+    [Theory]
+    [InlineData("1.0.0")]
+    [InlineData("10.5")]
+    [InlineData("2024")] // Supports major-only overrides
+    public void VersionRegexMatchesCommonPatterns(string version)
+    {
+        var regex = InvokeVersionRegex();
+
+        var match = regex.Match(version);
+
+        match.Success.ShouldBeTrue();
+    }
+
+    [Theory]
+    [InlineData("1.")]
+    [InlineData("1.2.")]
+    [InlineData("01.02a")]
+    [InlineData("v1.0")]
+    [InlineData("")]
+    public void VersionRegexRejectsInvalidPatterns(string version)
+    {
+        var regex = InvokeVersionRegex();
+
+        regex.IsMatch(version).ShouldBeFalse();
     }
 
     private static DateTime InvokeGetStartOfWeek(DateTime date)
