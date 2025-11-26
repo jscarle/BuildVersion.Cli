@@ -4,7 +4,7 @@ A command line tool to emit automatic build versions in a CI/CD pipeline.
 
 ## Requirements
 
-You must have the .NET 8 runtime or SDK installed.
+You must have the .NET 8, .NET 9, or .NET 10 runtime or SDK installed.
 
 ## Installation
 

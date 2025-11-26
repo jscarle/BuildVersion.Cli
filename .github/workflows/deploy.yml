@@ -22,10 +22,10 @@ jobs:
         fetch-depth: 0
         filter: tree:0
 
-    - name: Setup .NET
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: 10.x
         
     - name: Restore dependencies
       run: dotnet restore
