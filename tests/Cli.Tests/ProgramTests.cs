@@ -20,6 +20,13 @@ public class ProgramTests
     [InlineData(2024, 12, 31, 0, 0, 0, 2024, 12, 30)] // ISO week 1 of 2025 starts on 2024-12-30
     [InlineData(2023, 1, 1, 10, 30, 0, 2022, 12, 26)]
     [InlineData(2025, 5, 13, 8, 0, 0, 2025, 5, 12)]
+    [InlineData(2024, 2, 29, 0, 0, 0, 2024, 2, 26)]
+    [InlineData(2000, 2, 29, 12, 30, 0, 2000, 2, 28)]
+    [InlineData(1970, 1, 1, 0, 0, 0, 1969, 12, 29)]
+    [InlineData(2030, 12, 31, 23, 59, 59, 2030, 12, 30)]
+    [InlineData(1999, 12, 31, 6, 0, 0, 1999, 12, 27)]
+    [InlineData(2020, 2, 29, 14, 45, 0, 2020, 2, 24)]
+    [InlineData(2025, 1, 1, 0, 0, 0, 2024, 12, 30)]
     public void CalculatesStartOfWeekForBoundaryDates(
         int year,
         int month,
@@ -53,6 +60,13 @@ public class ProgramTests
     [InlineData(2025, 2, 3, 0, 0, 0, 0)]
     [InlineData(2025, 2, 3, 12, 0, 0, 720)]
     [InlineData(2025, 2, 7, 23, 59, 0, 7199)]
+    [InlineData(2024, 2, 29, 0, 0, 0, 4320)]
+    [InlineData(2000, 2, 29, 12, 30, 0, 2190)]
+    [InlineData(1970, 1, 1, 0, 0, 0, 4320)]
+    [InlineData(2030, 12, 31, 23, 59, 59, 2879)]
+    [InlineData(1999, 12, 31, 6, 0, 0, 6120)]
+    [InlineData(2020, 2, 29, 14, 45, 0, 8085)]
+    [InlineData(2025, 1, 1, 0, 0, 0, 2880)]
     public void CalculatesMinutesSinceStartOfWeekForMultipleDates(
         int year,
         int month,
