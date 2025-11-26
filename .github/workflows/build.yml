@@ -30,10 +30,10 @@ jobs:
       with:
         languages: 'csharp'
 
-    - name: Setup .NET 8.0
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: 10.x
         
     - name: Restore dependencies
       run: dotnet restore
