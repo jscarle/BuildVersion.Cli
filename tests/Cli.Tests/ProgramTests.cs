@@ -129,6 +129,24 @@ public class ProgramTests
         regex.IsMatch(version).ShouldBeFalse();
     }
 
+    [Theory]
+    [InlineData("Development", 1, 2, 3, 4, "1.2.3-dev.4")]
+    [InlineData("Staging", 1, 2, 3, 4, "1.2.3-rc.4")]
+    [InlineData("Test", 1, 2, 3, 4, "1.2.3-test.4")]
+    [InlineData("Production", 1, 2, 3, 4, "1.2.3.4")]
+    public void GetVersionUsesExpectedSuffixForEachEnvironment(
+        string environment,
+        int major,
+        int minor,
+        int patch,
+        int build,
+        string expectedVersion)
+    {
+        var version = InvokeGetVersion(environment, major, minor, patch, build);
+
+        version.ShouldBe(expectedVersion);
+    }
+
     private static DateTime InvokeGetStartOfWeek(DateTime date)
     {
         var methodInfo = typeof(Program).GetMethod(
@@ -163,5 +181,21 @@ public class ProgramTests
             modifiers: null) ?? throw new MissingMethodException("Program", "VersionRegex");
 
         return (Regex)(methodInfo.Invoke(null, null) ?? throw new InvalidOperationException("VersionRegex returned null."));
+    }
+
+    private static string InvokeGetVersion(string environment, int major, int minor, int patch, int build)
+    {
+        var programType = typeof(Program);
+        var environmentType = programType.GetNestedType("Environment", BindingFlags.NonPublic) ?? throw new MissingMethodException("Program", "Environment");
+        var parsedEnvironment = Enum.Parse(environmentType, environment, ignoreCase: true);
+
+        var methodInfo = programType.GetMethod(
+            "GetVersion",
+            BindingFlags.Static | BindingFlags.NonPublic,
+            binder: null,
+            types: [environmentType, typeof(int), typeof(int), typeof(int), typeof(int)],
+            modifiers: null) ?? throw new MissingMethodException("Program", "GetVersion");
+
+        return (string)(methodInfo.Invoke(null, [parsedEnvironment, major, minor, patch, build]) ?? throw new InvalidOperationException("GetVersion returned null."));
     }
 }

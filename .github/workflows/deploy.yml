@@ -11,6 +11,7 @@ jobs:
     permissions:
       packages: write
       contents: read
+      id-token: write
     steps:
 
     - name: Set build version
@@ -36,5 +37,11 @@ jobs:
     - name: Pack CLI package
       run: dotnet pack src/Cli/Cli.csproj --configuration Release --no-build --no-restore --output ${{env.DOTNET_ROOT}}/pack --property:IncludeSymbols=true --property:SymbolPackageFormat=snupkg
 
+    - name: NuGet Login
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: ${{secrets.NUGET_USER}}
+
     - name: Push packages
-      run: dotnet nuget push ${{env.DOTNET_ROOT}}/pack/*.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push ${{env.DOTNET_ROOT}}/pack/*.nupkg --api-key ${{steps.nuget-login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json

@@ -75,13 +75,7 @@ internal static partial class Program
         if (buildOverride.HasValue)
             build = buildOverride.Value;
 
-        var version = environment switch
-        {
-            Environment.Development => $"{major}.{minor}.{patch}-dev.{build}",
-            Environment.Staging => $"{major}.{minor}.{patch}-rc.{build}",
-            Environment.Production => $"{major}.{minor}.{patch}.{build}",
-            _ => throw new NotImplementedException($"Environment '{environment}' has not been implemented.")
-        };
+        var version = GetVersion(environment, major, minor, patch, build);
 
         switch (output)
         {
@@ -99,6 +93,18 @@ internal static partial class Program
                 System.Environment.Exit(1);
                 return;
         }
+    }
+
+    private static string GetVersion(Environment environment, int major, int minor, int patch, int build)
+    {
+        return environment switch
+        {
+            Environment.Development => $"{major}.{minor}.{patch}-dev.{build}",
+            Environment.Staging => $"{major}.{minor}.{patch}-rc.{build}",
+            Environment.Test => $"{major}.{minor}.{patch}-test.{build}",
+            Environment.Production => $"{major}.{minor}.{patch}.{build}",
+            _ => throw new NotImplementedException($"Environment '{environment}' has not been implemented.")
+        };
     }
 
     private static int GetBuildVersion(DateTime now)
@@ -265,7 +271,8 @@ internal static partial class Program
     {
         Development = 0,
         Staging = 1,
-        Production = 2,
+        Test = 2,
+        Production = 3,
     }
 
     private enum Output

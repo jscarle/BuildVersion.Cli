@@ -23,7 +23,7 @@ Usage:
   build-version [options]
 
 Options:
-  --environment <Development|Production|Staging> (REQUIRED)  Environment to generate the build version for.
+  --environment <Development|Production|Staging|Test> (REQUIRED)  Environment to generate the build version for.
   --output <DevOps|GitHub|Plain>                             The output format of the build version. [default: Plain]
   --base <base>                                              Override the automatically generated version using the base version
   --major <major>                                            Override the automatically generated major version
