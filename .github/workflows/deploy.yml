@@ -24,9 +24,9 @@ jobs:
         filter: tree:0
 
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 10.x
+        dotnet-version: 11.x
 
     - name: Restore dependencies
       run: dotnet restore
@@ -44,4 +44,4 @@ jobs:
         user: ${{secrets.NUGET_USER}}
 
     - name: Push packages
-      run: dotnet nuget push ${{env.DOTNET_ROOT}}/pack/*.nupkg --api-key ${{steps.nuget-login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push ${{env.DOTNET_ROOT}}/pack/*.nupkg --api-key ${{steps.nuget-login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
