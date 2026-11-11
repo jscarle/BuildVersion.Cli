@@ -101,7 +101,6 @@ internal static partial class Program
         {
             Environment.Development => $"{major}.{minor}.{patch}-dev.{build}",
             Environment.Staging => $"{major}.{minor}.{patch}-rc.{build}",
-            Environment.Test => $"{major}.{minor}.{patch}-test.{build}",
             Environment.Production => $"{major}.{minor}.{patch}.{build}",
             _ => throw new NotImplementedException($"Environment '{environment}' has not been implemented.")
         };
@@ -271,7 +270,6 @@ internal static partial class Program
     {
         Development = 0,
         Staging = 1,
-        Test = 2,
         Production = 3,
     }
 

@@ -132,7 +132,6 @@ public class ProgramTests
     [Theory]
     [InlineData("Development", 1, 2, 3, 4, "1.2.3-dev.4")]
     [InlineData("Staging", 1, 2, 3, 4, "1.2.3-rc.4")]
-    [InlineData("Test", 1, 2, 3, 4, "1.2.3-test.4")]
     [InlineData("Production", 1, 2, 3, 4, "1.2.3.4")]
     public void GetVersionUsesExpectedSuffixForEachEnvironment(
         string environment,
@@ -145,6 +144,15 @@ public class ProgramTests
         var version = InvokeGetVersion(environment, major, minor, patch, build);
 
         version.ShouldBe(expectedVersion);
+    }
+
+    [Theory]
+    [InlineData("Test")]
+    [InlineData("test")]
+    [InlineData("TEST")]
+    public void GetVersionWithTestEnvironmentThrowsArgumentException(string environment)
+    {
+        Should.Throw<ArgumentException>(() => InvokeGetVersion(environment, 1, 2, 3, 4));
     }
 
     private static DateTime InvokeGetStartOfWeek(DateTime date)
